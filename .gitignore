@@ -1,3 +1,4 @@
 miniscript-test/target
 miniscript-test/Cargo.lock
 **/*.rs.bk
+thor/thor
