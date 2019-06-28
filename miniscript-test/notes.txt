@@ -1,0 +1,31 @@
+multi(1,pk(C),pk(C))
+
+1. and(pk(C),or(pk(C),time(1000)))
+and_cat(check_v(pk(?)),or_c(pk(?),time(1000)))
+
+and_c(check_v(pk(?)),or_c(pk(?),time(1000)))
+
+[pk] CHECKSIGVERIFY [pk] CHECKSIG IFDUP NOTIF 0xe803 CHECKSEQUENCEVERIFY ENDIF
+
+2. or(and(pk(C),pk(C)),and(pk(C),time(1000)))
+or_if(and_cat(check_v(pk(?)),time(1000)),and_cat(check_v(pk(?)),pk(?)))
+
+or_if(and_c(check_v(pk(?)),time(1000)),and_c(check_v(pk(?)),pk(?)))
+
+IF [pk] CHECKSIGVERIFY 0xe803 CHECKSEQUENCEVERIFY ELSE [pk] CHECKSIGVERIFY [pk] CHECKSIG ENDIF
+or(multi(2,C,C),and(pk(C),time(1000)))
+2 [pk] [pk] 2 CHECKMULTISIG IFDUP NOTIF [pk] CHECKSIGVERIFY 0xe803 CHECKSEQUENCEVERIFY ENDIF
+
+3. thresh(2,and(pk(C),pk(C)),and(pk(C),time(1000)),or(pk(C),pk(C)))
+
+thresh(2,and_bool(pk(?),pk_w(?)),wrap(and_c(pk(?),time_f(1000))),wrap(or_bool(pk(?),pk_w(?))))
+
+[pk] CHECKSIG SWAP [pk] CHECKSIG BOOLAND TOALTSTACK [pk] CHECKSIG NOTIF 0 ELSE 0xe803 CHECKSEQUENCEVERIFY 0NOTEQUAL ENDIF FROMALTSTACK ADD TOALTSTACK [pk] CHECKSIG SWAP [pk] CHECKSIG BOOLOR FROMALTSTACK ADD 2 EQUAL
+
+4. and(and(thresh(1,and(pk(C),pk(C)),time(1000),and(pk(C),pk(C))),thresh(2,or(pk(C),pk(C)),or(pk(C),pk(C)),and(pk(C),time(1000)))),or(pk(C),pk(C)))
+
+and_cat(or_cont(pk(?),check_v(pk(?))),and_cat(thres_v(1,and_bool(pk(?),pk_w(?)),time_w(1000),wrap(and_bool(pk(?),pk_w(?)))),thresh(2,or_bool(pk(?),pk_w(?)),wrap(or_bool(pk(?),pk_w(?))),wrap(and_c(pk(?),time_f(1000))))))
+
+[pk] CHECKSIG NOTIF [pk] CHECKSIGVERIFY ENDIF [pk] CHECKSIG SWAP [pk] CHECKSIG BOOLAND SWAP DUP IF 0xe803 CHECKSEQUENCEVERIFY DROP ENDIF ADD TOALTSTACK [pk] CHECKSIG SWAP [pk] CHECKSIG BOOLAND FROMALTSTACK ADD 1 EQUALVERIFY [pk] CHECKSIG SWAP [pk] CHECKSIG BOOLOR TOALTSTACK [pk] CHECKSIG SWAP [pk] CHECKSIG BOOLOR FROMALTSTACK ADD TOALTSTACK [pk] CHECKSIG NOTIF 0 ELSE 0xe803 CHECKSEQUENCEVERIFY 0NOTEQUAL ENDIF FROMALTSTACK ADD 2 EQUAL
+
+1 [pk] [pk] 2 CHECKMULTISIG

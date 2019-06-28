@@ -180,3 +180,20 @@ func PostPurchase(paymentMode string, sendEmail string, email string) (ThorOrder
 
 	return x, nil
 }
+
+func GetOrderId(orderId string) (ThorOrderReturn, error) {
+	var x ThorOrderReturn
+
+	baseURL := "https://api.bitrefill.com/v1/order/" + orderId
+	data, err := GetRequest(baseURL)
+	if err != nil {
+		return x, errors.Wrap(err, "could not make get request to bitrefill api, quitting")
+	}
+
+	err = json.Unmarshal(data, &x)
+	if err != nil {
+		return x, errors.Wrap(err, "could not unmarshal json struct, quitting")
+	}
+
+	return x, err
+}
