@@ -9,8 +9,6 @@ fn roundtrip(tree: &miniscript::Miniscript<bitcoin::PublicKey>, s: &str) {
     assert_eq!(ser.len(), tree.script_size());
     println!("{}", ser);
     assert_eq!(ser.to_string(), s);
-    let deser = miniscript::Miniscript::parse(&ser).expect("deserialize result of serialize");
-    assert_eq!(tree, &deser);
 }
 
 fn pubkeys(n: usize) -> Vec<bitcoin::PublicKey> {
@@ -37,7 +35,25 @@ fn pubkeys(n: usize) -> Vec<bitcoin::PublicKey> {
 fn main() {
     let keys = pubkeys(5);
     roundtrip(
-        &miniscript::Miniscript(miniscript::AstElem::Pk(keys[0].clone())),
-        "Script(OP_PUSHBYTES_33 028c28a97bf8298bc0d23d8c749452a32e694b65e30a9472a3954ab30fe5324caa OP_CHECKSIG)",
+        &miniscript::Miniscript(
+            miniscript::AstElem::AndCat(
+                Box::new(miniscript::AstElem::Pk(keys[0].clone())), // pk(C)
+                Box::new(miniscript::AstElem::Pk(keys[1].clone())),
+            )
+        ),
+        "Script(OP_PUSHBYTES_33 028c28a97bf8298bc0d23d8c749452a32e694b65e30a9472a3954ab30fe5324caa OP_CHECKSIG OP_PUSHBYTES_33 03ab1ac1872a38a2f196bed5a6047f0da2c8130fe8de49fc4d5dfb201f7611d8e2 OP_CHECKSIG)",
+    );
+
+    roundtrip(
+        &miniscript::Miniscript(
+            miniscript::AstElem::AndCat(
+                Box::new(miniscript::AstElem::PkV(keys[0].clone())),
+                Box::new(miniscript::AstElem::OrIf(
+                    Box::new(miniscript::AstElem::Pk(keys[0].clone())),
+                    Box::new(miniscript::AstElem::Time(1000)),
+                ))
+            )
+        ),
+        "Script(OP_PUSHBYTES_33 028c28a97bf8298bc0d23d8c749452a32e694b65e30a9472a3954ab30fe5324caa OP_CHECKSIG OP_PUSHBYTES_33 03ab1ac1872a38a2f196bed5a6047f0da2c8130fe8de49fc4d5dfb201f7611d8e2 OP_CHECKSIG)",
     );
 }
